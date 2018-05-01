@@ -12,11 +12,14 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.get('/', (req, res) => res.render('pages/index'))
 
 app.get('/mongodb', function (request, response) {
-    mongodb.MongoClient.connect(process.env.MONGODB_URI, function(err, db) {
-    if(err) throw err;
+    mongodb.MongoClient.connect(process.env.MONGODB_URI, function(err, client) {
+    if(err) {
+      console.log('error: ', err);
+      throw err;
+    }
+    const db = client.db();
     const Routes = db.collection('Routes');
     Routes.find({ frequency : { $gte: 0 } }).sort({ name: 1 }).toArray(function (err, docs) {
-      alert(JSON.stringify(docs));
       if(err) throw err;
       response.render('pages/mongodb', {results: docs});
     });
